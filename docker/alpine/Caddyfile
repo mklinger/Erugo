@@ -1,5 +1,6 @@
 # Basic Caddyfile for Laravel
-:80 {
+# For supported $DOMAIN values, see https://caddyserver.com/docs/caddyfile/concepts#addresses
+{$DOMAIN:http://} {
     root * /var/www/html/public
 
     # Allow large file uploads (500MB)
@@ -9,13 +10,13 @@
 
     # Enable Gzip compression
     encode gzip
-    
+
     # Simplified logging
     log {
         output file /var/www/html/storage/logs/caddy.log
         format json
     }
-    
+
     # Provide security headers
     header {
         # Security headers
@@ -24,7 +25,7 @@
         X-Frame-Options "SAMEORIGIN"
         Referrer-Policy "strict-origin-when-cross-origin"
         X-XSS-Protection "1; mode=block"
-        
+
         # Remove server header
         -Server
     }
@@ -65,10 +66,10 @@
         file_server {
             index index.php
         }
-        
+
         # Handle Laravel's front controller pattern
         try_files {path} {path}/ /index.php?{query}
-        
+
         # Enable PHP processing
         php_fastcgi unix//run/php/php-fpm.sock
     }
