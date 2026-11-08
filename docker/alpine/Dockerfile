@@ -7,7 +7,7 @@ COPY . .
 RUN composer install --no-interaction --optimize-autoloader
 
 # Build Stage for Node.js dependencies and assets
-FROM node:20-alpine AS node
+FROM node:24-alpine AS node
 WORKDIR /app
 COPY . .
 
@@ -16,7 +16,7 @@ RUN npm ci && \
     && rm -rf node_modules
 
 # Final production image
-FROM alpine:3.19
+FROM alpine:3.24
 
 LABEL maintainer="Dean Ward"
 
@@ -33,9 +33,6 @@ ENV TZ=UTC
 ENV SUPERVISOR_PHP_FPM_COMMAND="/usr/sbin/php-fpm83 -F"
 ENV SUPERVISOR_CADDY_COMMAND="/usr/sbin/caddy run --config /etc/caddy/Caddyfile"
 ENV SUPERVISOR_PHP_USER="erugo"
-
-# Enable community repository for PHP packages
-RUN echo "http://dl-cdn.alpinelinux.org/alpine/v3.19/community" >> /etc/apk/repositories
 
 # Install production requirements
 RUN apk add --no-cache \
@@ -77,7 +74,7 @@ RUN apk add --no-cache \
     && rm -rf /var/cache/apk/*
 
 # Download and install tusd for the correct architecture
-ENV TUSD_VERSION=2.6.0
+ENV TUSD_VERSION=2.10.1
 RUN TUSD_ARCH="${TARGETARCH}" && \
     if [ "$TUSD_ARCH" = "amd64" ]; then TUSD_ARCH="amd64"; \
     elif [ "$TUSD_ARCH" = "arm64" ]; then TUSD_ARCH="arm64"; \
