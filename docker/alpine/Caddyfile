@@ -12,10 +12,7 @@
     encode gzip
 
     # Simplified logging
-    log {
-        output file /var/www/html/storage/logs/caddy.log
-        format json
-    }
+    log
 
     # Provide security headers
     header {
@@ -28,6 +25,9 @@
 
         # Remove server header
         -Server
+
+        -Via
+        -X-Powered-By
     }
 
     # Cache static build assets (Vite-generated with hashes in filenames)
@@ -52,6 +52,10 @@
     }
     header @user_assets Cache-Control "public, max-age=300, must-revalidate"
 
+    handle /api/tusd-hooks {
+        respond "Forbidden" 403
+    }
+
     # Proxy tusd uploads - must be handled before Laravel catches it
     handle /files/* {
         reverse_proxy localhost:8080 {
@@ -72,5 +76,19 @@
 
         # Enable PHP processing
         php_fastcgi unix//run/php/php-fpm.sock
+    }
+}
+
+http://localhost:8090 {
+    root * /var/www/html/public
+
+    log
+
+    handle /api/tusd-hooks {
+        php_fastcgi unix//run/php/php-fpm.sock
+    }
+
+    handle {
+        respond "Forbidden" 403
     }
 }
